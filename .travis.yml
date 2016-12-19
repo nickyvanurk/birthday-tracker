@@ -1,0 +1,10 @@
+sudo: required
+language: python
+python:
+  - "3.5"
+install:
+  - pip install pytest pytest-cov
+  - pip install coveralls
+  - python3 -m pip install testfixtures
+script: pytest
+after_success: coveralls
