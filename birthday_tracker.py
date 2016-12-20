@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-import contextlib, argparse, collections, datetime
+import contextlib, argparse, collections, datetime, json
 
 def get_command_line_args():
-  defaults = {'name': None, 'birthdate': None}
+  defaults = {'name': '', 'birthdate': ''}
   parser = argparse.ArgumentParser()
   parser.add_argument('-n', dest='name', help='name of person')
   parser.add_argument('-b', dest='birthdate', help='date of birth')
@@ -20,15 +20,35 @@ def is_date_valid(birthdate):
     return False
   return date <= date.now()
 
+def get_json_data(file):
+  with open(file, 'r') as f:
+    try:
+      data = json.load(f)
+    except ValueError:
+      data = {}
+  return data
+
+def dump_json_data(data, file):
+  with open(file, 'w') as f:
+    json.dump(data, f)
+
 def main():
   args = get_command_line_args()
-  if args['name'] and args['birthdate']:
-    if is_date_valid(args['birthdate']):
-      print(args['name'] + ', ' + args['birthdate'])
+  name = args['name'].strip()
+  birthdate = args['birthdate'].strip()
+  data_file = 'birthdates.json'
+
+  if name and birthdate:
+    if is_date_valid(birthdate):
+      data = get_json_data(data_file)
+      data.update({name : birthdate})
+      dump_json_data(data, data_file)
     else:
       print('Invalid birthday')
   else:
-    print('Display birthdays list')
+    data = get_json_data(data_file)
+    for key, value in data.items():
+      print(key + ', ' + value)
 
 if __name__ == '__main__':
   with contextlib.suppress(KeyboardInterrupt):
