@@ -4,3 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/nickyvanurk/birthday-tracker/badge.svg?branch=master)](https://coveralls.io/github/nickyvanurk/birthday-tracker?branch=master)
 
 Because I always seem to forget everyone's birthday, I thought it would be nice to write a neat little script to keep track of them.
+
+## Requirements
+* Python 3
+
+## Usage
+* Allow the script to be executed: `chmod +x birthday_tracker.py`
+* Run the script to view birthdays: `./episode_countdown.py`
+* To add a birthday: `./episode_countdown.py -n [name] -b [birthdate]`
