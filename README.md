@@ -10,5 +10,5 @@ Because I always seem to forget everyone's birthday, I thought it would be nice 
 
 ## Usage
 * Allow the script to be executed: `chmod +x birthday_tracker.py`
-* Run the script to view birthdays: `./episode_countdown.py`
-* To add a birthday: `./episode_countdown.py -n [name] -b [birthdate]`
+* Add a birthday: `./birthday_tracker.py -n [name] -b [birthdate]`
+* View birthdays: `./birthday_tracker.py`
