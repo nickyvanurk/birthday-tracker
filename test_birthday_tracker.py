@@ -1,4 +1,4 @@
-import birthday_tracker
+import birthday_tracker, datetime
 from testfixtures import TempDirectory
 
 tempdir = TempDirectory()
@@ -13,21 +13,43 @@ def test_get_command_line_args():
   assert args['name'] == ''
   assert args['birthdate'] == ''
 
-def test_is_date_valid():
-  assert birthday_tracker.is_date_valid('') == False
-  assert birthday_tracker.is_date_valid('0-0-0') == False
-  assert birthday_tracker.is_date_valid('1-1-2016') == True
-  assert birthday_tracker.is_date_valid('01-01-2016') == True
-  assert birthday_tracker.is_date_valid('32-01-2016') == False
-  assert birthday_tracker.is_date_valid('10-13-2016') == False
-  assert birthday_tracker.is_date_valid('10-01-2030') == False
+def test_date_is_valid():
+  assert birthday_tracker.date_is_valid('') == False
+  assert birthday_tracker.date_is_valid('000') == False
+  assert birthday_tracker.date_is_valid('112016') == True
+  assert birthday_tracker.date_is_valid('01012016') == True
+  assert birthday_tracker.date_is_valid('32012016') == False
+  assert birthday_tracker.date_is_valid('10132016') == False
+  assert birthday_tracker.date_is_valid('10012030') == False
 
-def test_json_read_write():
-  data = {'John Doe' : '20-12-2016'}
-  data_file = path + '/birthdates.json'
-  assert birthday_tracker.get_json_data(data_file) == {}
-  birthday_tracker.dump_json_data(data, data_file)
-  assert birthday_tracker.get_json_data(data_file) == data
+def test_add_birthday():
+  name = 'John Doe'
+  birthdate = '20-12-2016'
+  file = path + '/birthdates.json'
+  assert birthday_tracker.get_json(file) == {}
+  birthday_tracker.add_birthday(name, birthdate, file)
+  assert birthday_tracker.get_json(file) == {name : birthdate}
+
+def test_get_next_birthday():
+  # Birthday in a leap year on 29th of february
+  birthdate = datetime.datetime(year=1992, month=2, day=29).date()
+  # Date (leap year) < Birthday
+  date = datetime.datetime(year=2016, month=2, day=20).date()
+  expected = datetime.datetime(year=2016, month=2, day=29).date()
+  assert birthday_tracker.get_next_birthday(date, birthdate) == expected
+  # Date (no leap year) < Birthday
+  date = datetime.datetime(year=2017, month=2, day=20).date()
+  expected = datetime.datetime(year=2017, month=2, day=28).date()
+  assert birthday_tracker.get_next_birthday(date, birthdate) == expected
+  # Date == Birthday
+  date = datetime.datetime(year=2016, month=2, day=29).date()
+  expected = datetime.datetime(year=2016, month=2, day=29).date()
+  assert birthday_tracker.get_next_birthday(date, birthdate) == expected
+  # Date > Birthday
+  date = datetime.datetime(year=2016, month=3, day=1).date()
+  expected = datetime.datetime(year=2017, month=2, day=28).date()
+  assert birthday_tracker.get_next_birthday(date, birthdate) == expected
+
 
 
 

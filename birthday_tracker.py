@@ -9,64 +9,67 @@ def get_command_line_args():
   command_line_args = {k:v for k, v in vars(parser.parse_args()).items() if v}
   return collections.ChainMap(command_line_args, defaults)
 
-def is_date_valid(birthdate):
+def date_is_valid(birthdate):
   try:
-    bdate = birthdate.split('-')
-    day = int(bdate[0])
-    month = int(bdate[1])
-    year = int(bdate[2])
-    date = datetime.datetime(year,month,day).date()
-  except ValueError:
+    date = datetime.datetime.strptime(birthdate, "%d%m%Y").date()
+  except:
     return False
   return date <= datetime.date.today()
 
-def get_json_data(file):
+def get_json(file):
   with open(file, 'r') as f:
     try:
-      data = json.load(f)
-    except ValueError:
-      data = {}
-  return data
+      return json.load(f)
+    except:
+      return {}
 
-def dump_json_data(data, file):
+def dump_json(data, file):
   with open(file, 'w') as f:
     json.dump(data, f)
+
+def add_birthday(name, birthdate, file):
+  d = get_json(file)
+  d.update({name : birthdate})
+  dump_json(d, file)
+
+def get_next_birthday(date, birthdate):
+  try:
+    next_birthday = birthdate.replace(year=date.year)
+    if next_birthday < date:
+      next_birthday = birthdate.replace(year=date.year+1)
+  except:
+    next_birthday = birthdate.replace(day=28, year=date.year)
+    if next_birthday < date:
+      next_birthday = birthdate.replace(day=28, year=date.year+1)
+  return next_birthday
+
+def print_birthday_list(file):
+  d = get_json(file)
+  d = collections.OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
+  for key, value in d.items():
+    birthdate = datetime.datetime.strptime(value, "%d%m%Y").date()
+    today = datetime.date.today()
+    next_birthday = get_next_birthday(today, birthdate)
+    print('{name}\t{countdown}\t{new_age}\t{next_bday}'.format(
+      name=key,
+      countdown=str((next_birthday - today).days),
+      new_age=str(today.year-birthdate.year + next_birthday.year-today.year),
+      next_bday=next_birthday.strftime('%d-%m-%Y'))
+    )
 
 def main():
   args = get_command_line_args()
   name = args['name'].strip()
-  birthdate = args['birthdate'].strip()
-  data_file = 'birthdates.json'
+  birthdate = args['birthdate'].replace('-','').replace(' ', '')
+  file = 'birthdates.json'
 
   if name and birthdate:
-    if is_date_valid(birthdate):
-      data = get_json_data(data_file)
-      data.update({name : birthdate})
-      dump_json_data(data, data_file)
+    if date_is_valid(birthdate):
+      add_birthday(name, birthdate, file)
     else:
       print('Invalid birthday')
   else:
-    data = get_json_data(data_file)
-    data = collections.OrderedDict(sorted(data.items(), key=lambda t: t[1], reverse=True))
-    for key, value in data.items():
-      bdate = value.split('-')
-      bdate = datetime.datetime(year=int(bdate[2]),
-                                month=int(bdate[1]),
-                                day=int(bdate[0])).date()
-      today = datetime.date.today()
-
-      try: next_bday = bdate.replace(year=today.year)
-      except ValueError: next_bday = bdate.replace(day=28, year=today.year)
-
-      if next_bday < today:
-        try: next_bday = bdate.replace(year=today.year + 1)
-        except ValueError: next_bday = bdate.replace(day=28, year=today.year + 1)
-
-      days_until_bday = (next_bday - today).days
-      new_age = today.year-bdate.year + next_bday.year-today.year
-      eu_date = next_bday.strftime('%d-%m-%Y')
-
-      print(key + '\t' + str(days_until_bday) + '\t' + str(new_age) + '\t' + eu_date)
+    print_birthday_list(file)
 
 if __name__ == '__main__':
   with contextlib.suppress(KeyboardInterrupt):
