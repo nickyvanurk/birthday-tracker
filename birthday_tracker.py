@@ -2,10 +2,11 @@
 import contextlib, argparse, collections, datetime, json, calendar
 
 def get_command_line_args():
-  defaults = {'name': '', 'birthdate': ''}
+  defaults = {'name': '', 'birthdate': '', 'remove': ''}
   parser = argparse.ArgumentParser()
   parser.add_argument('-n', dest='name', help='name of person')
   parser.add_argument('-b', dest='birthdate', help='date of birth')
+  parser.add_argument('-r', dest='remove', help='remove birthday by name')
   command_line_args = {k:v for k, v in vars(parser.parse_args()).items() if v}
   return collections.ChainMap(command_line_args, defaults)
 
@@ -30,6 +31,11 @@ def dump_json(data, file):
 def add_birthday(name, birthdate, file):
   d = get_json(file)
   d.update({name : birthdate})
+  dump_json(d, file)
+
+def remove_birthday(name, file):
+  d = get_json(file)
+  del d[name]
   dump_json(d, file)
 
 def get_next_birthday(date, birthdate):
@@ -61,6 +67,7 @@ def main():
   args = get_command_line_args()
   name = args['name'].strip()
   birthdate = args['birthdate'].replace('-','').replace(' ', '')
+  name_to_remove = args['remove'].strip()
   file = 'birthdates.json'
 
   if name and birthdate:
@@ -68,6 +75,8 @@ def main():
       add_birthday(name, birthdate, file)
     else:
       print('Invalid birthday')
+  elif name_to_remove:
+    remove_birthday(name_to_remove, file)
   else:
     print_birthday_list(file)
 

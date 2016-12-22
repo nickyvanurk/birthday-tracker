@@ -23,12 +23,17 @@ def test_date_is_valid():
   assert birthday_tracker.date_is_valid('10012030') == False
 
 def test_add_birthday():
-  name = 'John Doe'
-  birthdate = '20-12-2016'
   file = path + '/birthdates.json'
   assert birthday_tracker.get_json(file) == {}
-  birthday_tracker.add_birthday(name, birthdate, file)
-  assert birthday_tracker.get_json(file) == {name : birthdate}
+  birthday_tracker.add_birthday('John Doe', '20-12-2016', file)
+  assert birthday_tracker.get_json(file) == {'John Doe' : '20-12-2016'}
+
+def test_remove_birthday():
+  file = path + '/birthdates.json'
+  birthday_tracker.add_birthday('John Doe', '20-12-2016', file)
+  assert birthday_tracker.get_json(file) == {'John Doe' : '20-12-2016'}
+  birthday_tracker.remove_birthday('John Doe', file)
+  assert birthday_tracker.get_json(file) == {}
 
 def test_get_next_birthday():
   # Birthday in a leap year on 29th of february
