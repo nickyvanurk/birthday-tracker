@@ -11,4 +11,5 @@ Because I always seem to forget everyone's birthday, I thought it would be nice 
 ## Usage
 * Allow the script to be executed: `chmod +x birthday_tracker.py`
 * Add a birthday: `./birthday_tracker.py -n [name] -b [birthdate]`
-* View birthdays: `./birthday_tracker.py`
+* Remove a birthday: `./birthday_tracker.py -r [name]`
+* View all birthdays: `./birthday_tracker.py`
