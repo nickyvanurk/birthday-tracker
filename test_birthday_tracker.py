@@ -25,13 +25,13 @@ def test_date_is_valid():
 def test_add_birthday():
   file = path + '/birthdates.json'
   assert birthday_tracker.get_json(file) == {}
-  birthday_tracker.add_birthday('John Doe', '20-12-2016', file)
-  assert birthday_tracker.get_json(file) == {'John Doe' : '20-12-2016'}
+  birthday_tracker.add_birthday('John Doe', '20122016', file)
+  assert birthday_tracker.get_json(file) == {'John Doe' : '20122016'}
 
 def test_remove_birthday():
   file = path + '/birthdates.json'
-  birthday_tracker.add_birthday('John Doe', '20-12-2016', file)
-  assert birthday_tracker.get_json(file) == {'John Doe' : '20-12-2016'}
+  birthday_tracker.add_birthday('John Doe', '20122016', file)
+  assert birthday_tracker.get_json(file) == {'John Doe' : '20122016'}
   birthday_tracker.remove_birthday('John Doe', file)
   assert birthday_tracker.get_json(file) == {}
 
@@ -54,6 +54,15 @@ def test_get_next_birthday():
   date = datetime.datetime(year=2016, month=3, day=1).date()
   expected = datetime.datetime(year=2017, month=2, day=28).date()
   assert birthday_tracker.get_next_birthday(date, birthdate) == expected
+
+def test_get_birthday_list():
+  file = path + '/birthdates.json'
+  birthday_tracker.add_birthday('John Doe', '20122016', file)
+  birthday_tracker.add_birthday('Jane Doe', '20102010', file)
+  s = birthday_tracker.get_birthday_list(file)
+  assert len(s) == 2
+  assert s[0] == 'John Doe\t358\t1\t20-12-2017'
+  assert s[1] == 'Jane Doe\t297\t7\t20-10-2017'
 
 
 

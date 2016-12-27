@@ -49,19 +49,21 @@ def get_next_birthday(date, birthdate):
       next_birthday = birthdate.replace(day=28, year=date.year+1)
   return next_birthday
 
-def print_birthday_list(file):
+def get_birthday_list(file):
   d = get_json(file)
   d = collections.OrderedDict(sorted(d.items(), key=lambda t: t[1], reverse=True))
+  s = []
   for key, value in d.items():
     birthdate = datetime.datetime.strptime(value, "%d%m%Y").date()
     today = datetime.date.today()
     next_birthday = get_next_birthday(today, birthdate)
-    print('{name}\t{countdown}\t{new_age}\t{next_bday}'.format(
+    s.append('{name}\t{countdown}\t{new_age}\t{next_bday}'.format(
       name=key,
       countdown=str((next_birthday - today).days),
       new_age=str(today.year-birthdate.year + next_birthday.year-today.year),
       next_bday=next_birthday.strftime('%d-%m-%Y'))
     )
+  return s
 
 def main():
   args = get_command_line_args()
@@ -78,7 +80,7 @@ def main():
   elif name_to_remove:
     remove_birthday(name_to_remove, file)
   else:
-    print_birthday_list(file)
+    print(get_birthday_list(file))
 
 if __name__ == '__main__':
   with contextlib.suppress(KeyboardInterrupt):
